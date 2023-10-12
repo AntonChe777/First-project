@@ -4,9 +4,12 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
+import java.time.Duration;
 import java.util.List;
 
+import static constants.Constant.TimeoutVariable.EXPLICIT_WAIT;
 import static constants.Constant.URLS.START_PAGE_URL;
 
 public class BasePaige {
@@ -14,6 +17,7 @@ public class BasePaige {
     public BasePaige(WebDriver driver){
         this.driver = driver;
     }
+    public static final String CHECK_BOX_LOCATOR = "//input[@type='checkbox'][following-sibling::span[contains(text(),'@s')]]";
     public void  openURL(String url){
         driver.get(url);
     }
@@ -23,7 +27,7 @@ public class BasePaige {
     public WebElement findElement(String locator){
         WebElement element = driver.findElement(By.xpath(locator));
         JavascriptExecutor js = (JavascriptExecutor) driver;
-        js.executeScript("arguments[0].scrollIntoView();",locator);
+        js.executeScript("arguments[0].scrollIntoView();",element);
         return element;
     }
     public List<WebElement> findElements(String locator){
@@ -44,6 +48,22 @@ public class BasePaige {
     }
     public String getText(String locator){
         return findElement(locator).getText();
+    }
+    public void waitElementDisplayed(String locator, int second){
+        new WebDriverWait(driver, Duration.ofSeconds(second)).until(d->findElement(locator).isDisplayed());
+    }
+    public void  waitElementDisplayed (String locator){
+        waitElementDisplayed(locator,EXPLICIT_WAIT);
+    }
+    public boolean getCheckBoxStatus(String checkBoxName){
+        String locator = String.format(CHECK_BOX_LOCATOR,checkBoxName);
+        return findElement(locator).isSelected();
+    }
+    public void setCheckBox(String checkBoxName,boolean state){
+        String locator = String.format(CHECK_BOX_LOCATOR,checkBoxName)+ "/following-sibling::span[@class='rct-checkbox']";
+        if(!getCheckBoxStatus(checkBoxName)==state){
+            click(locator);
+        }
     }
 
 }
